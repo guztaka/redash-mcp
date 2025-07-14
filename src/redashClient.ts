@@ -108,14 +108,32 @@ export class RedashClient {
       throw new Error('REDASH_URL and REDASH_API_KEY must be provided in .env file');
     }
 
-    this.client = axios.create({
+    const basicAuthUser = process.env.REDASH_BASIC_AUTH_USERNAME;
+    const basicAuthPass = process.env.REDASH_BASIC_AUTH_PASSWORD;
+
+    const axiosConfig: any = {
       baseURL: this.baseUrl,
       headers: {
-        'Authorization': `Key ${this.apiKey}`,
         'Content-Type': 'application/json'
       },
       timeout: parseInt(process.env.REDASH_TIMEOUT || '30000')
-    });
+    };
+
+    if (basicAuthUser && basicAuthPass) {
+      const token = Buffer.from(`${basicAuthUser}:${basicAuthPass}`).toString('base64');
+      axiosConfig.headers['Authorization'] = `Basic ${token}`;
+    } else {
+      axiosConfig.headers['Authorization'] = `Key ${this.apiKey}`;
+    }
+
+    this.client = axios.create(axiosConfig);
+
+    if (basicAuthUser && basicAuthPass) {
+      this.client.interceptors.request.use((config) => {
+        config.params = { ...(config.params || {}), api_key: this.apiKey };
+        return config;
+      });
+    }
   }
 
   // Get all queries (with pagination)
