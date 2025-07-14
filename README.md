@@ -32,6 +32,7 @@ The server requires the following environment variables:
 Optional variables:
 - `REDASH_TIMEOUT`: Timeout for API requests in milliseconds (default: 30000)
 - `REDASH_MAX_RESULTS`: Maximum number of results to return (default: 1000)
+- `REDASH_BASIC_AUTH_USERNAME` / `REDASH_BASIC_AUTH_PASSWORD`: Basic auth credentials if your Redash instance is protected
 
 ## Installation
 
